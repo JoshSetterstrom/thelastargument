@@ -2,6 +2,7 @@ import 'dotenv/config';
 
 import express from 'express';
 
+import gamesRouter from './routes/games.js';
 import scenariosRouter from './routes/scenarios.js';
 
 const app = express();
@@ -10,6 +11,7 @@ const port = Number(process.env.PORT) || 3000;
 
 app.use(express.json({ limit: '50kb' }));
 
+app.use('/api/games', gamesRouter);
 app.use('/api/scenarios', scenariosRouter);
 
 app.use((req, res) => {

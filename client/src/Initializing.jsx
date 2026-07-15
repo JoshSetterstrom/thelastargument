@@ -9,20 +9,14 @@ const defaultSteps = [
     'Synchronizing local terminal'
 ];
 
-const InitializingScreen = ({
-    activeStep = 0,
-    steps = defaultSteps,
-    error = null
-}) => {
+const InitializingScreen = ({ activeStep=0, steps=defaultSteps, error=null }) => {
     const [visibleSteps, setVisibleSteps] = useState([]);
 
     useEffect(() => {
         setVisibleSteps(current => {
             const next = steps.slice(0, activeStep + 1);
 
-            return next.length >= current.length
-                ? next
-                : current;
+            return next.length >= current.length ? next : current;
         });
     }, [activeStep, steps]);
 
@@ -35,7 +29,7 @@ const InitializingScreen = ({
                 <header className="initializing-terminal__header">
                     <span className="initializing-terminal__logo">Λ</span>
 
-                    <div>
+                    <div className="initializing-terminal__title">
                         <span className="initializing-terminal__eyebrow">
                             Strategic Intelligence Interface
                         </span>
@@ -44,12 +38,7 @@ const InitializingScreen = ({
                     </div>
 
                     <span
-                        className={[
-                            'initializing-terminal__connection',
-                            error
-                                ? 'initializing-terminal__connection--error'
-                                : ''
-                        ]
+                        className={[ 'initializing-terminal__connection', error ? 'initializing-terminal__connection--error' : '' ]
                             .filter(Boolean)
                             .join(' ')}
                     >
@@ -65,16 +54,12 @@ const InitializingScreen = ({
                         </span>
 
                         <h2>
-                            {error
-                                ? 'Initialization interrupted'
-                                : 'Initializing terminal'}
+                            {error ? 'Initialization interrupted' : 'Initializing terminal'}
                             {!error && <span className="loading-dots" />}
                         </h2>
 
                         <p>
-                            {error
-                                ? error
-                                : 'Preparing the negotiation environment. Do not disconnect.'}
+                            {error ? error : 'Preparing the negotiation environment. Do not disconnect.'}
                         </p>
                     </div>
 
@@ -100,12 +85,7 @@ const InitializingScreen = ({
 
                                 return (
                                     <div
-                                        className={[
-                                            'initializing-log__line',
-                                            isActive
-                                                ? 'initializing-log__line--active'
-                                                : ''
-                                        ]
+                                        className={[ 'initializing-log__line', isActive ? 'initializing-log__line--active' : '' ]
                                             .filter(Boolean)
                                             .join(' ')}
                                         key={step}
@@ -119,9 +99,7 @@ const InitializingScreen = ({
                                 );
                             })}
 
-                            {!error && (
-                                <span className="initializing-log__cursor" />
-                            )}
+                            {!error && <span className="initializing-log__cursor" />}
                         </div>
                     </div>
 

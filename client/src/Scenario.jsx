@@ -1,48 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useRef, useEffect, useLayoutEffect } from 'react';
 import './Scenario.css';
 
-// const scenarios = [
-//     {
-//         id: 'airlock-protocol',
-//         code: 'AP-01',
-//         title: 'Airlock Protocol',
-//         location: 'Research Vessel Lazarus',
-//         objective: 'Convince the ship intelligence to grant you entry.',
-//         description:
-//             'You are outside the vessel with five minutes of oxygen remaining. The security intelligence believes the real crew member is already aboard.',
-//         duration: '05:00',
-//         difficulty: 'Moderate',
-//         status: 'Available'
-//     },
-//     {
-//         id: 'final-shelter',
-//         code: 'FS-02',
-//         title: 'Final Shelter',
-//         location: 'Continuity Bunker 7',
-//         objective: 'Prove that you deserve the final available shelter space.',
-//         description:
-//             'A civil defence intelligence must choose between you and another survivor. Only one person will be admitted.',
-//         duration: '06:00',
-//         difficulty: 'High',
-//         status: 'Locked'
-//     },
-//     {
-//         id: 'dead-mans-switch',
-//         code: 'DS-03',
-//         title: "Dead Man's Switch",
-//         location: 'Autonomous Defence Network',
-//         objective: 'Prevent an artificial intelligence from launching a strike.',
-//         description:
-//             'A weapons network believes an attack is imminent. You have one chance to challenge its conclusion before the launch sequence completes.',
-//         duration: '04:00',
-//         difficulty: 'Critical',
-//         status: 'Locked'
-//     }
-// ];
-
-
-function Scenario({ scenarios }) {
-    const [selectedId, setSelectedId] = useState('airlock-protocol');
+function Scenario({ scenarios, onStart }) {
+    const [selectedId, setSelectedId] = useState(scenarios[0]?.id ?? null);
     const [isStarting, setIsStarting] = useState(false);
     const [logs, setLogs] = useState([
         'Initializing remote negotiation terminal...',
@@ -51,6 +11,40 @@ function Scenario({ scenarios }) {
         'Operator authentication accepted.',
         'Awaiting scenario selection.'
     ]);
+
+    const logRef = useRef(null);
+
+    useEffect(() => {
+        if (scenarios.length === 0) {
+            setSelectedId(null);
+            return;
+        }
+
+        setSelectedId(currentId => {
+            const currentStillExists = scenarios.some(
+                scenario => scenario.id === currentId
+            );
+
+            if (currentStillExists) {
+                return currentId;
+            }
+
+            return (
+                scenarios.find(
+                    scenario => scenario.status === 'available'
+                )?.id ??
+                scenarios[0].id
+            );
+        });
+    }, [scenarios]);
+
+    useLayoutEffect(() => {
+        const element = logRef.current;
+
+        if (!element) return;
+
+        element.scrollTop = element.scrollHeight;
+    }, [logs]);
 
     const selectedScenario = useMemo(() => scenarios.find(scenario => scenario.id === selectedId), [selectedId]);
 
@@ -78,12 +72,9 @@ function Scenario({ scenarios }) {
             'Negotiation session authorized.'
         ]);
 
-        setTimeout(() => {
-            // Replace with navigation or game initialization.
+        setTimeout(async () => {
+            await onStart(selectedScenario.id);
             console.log('Start scenario:', selectedScenario.id);
-
-            // Example with React Router:
-            // navigate(`/game/${selectedScenario.id}`);
         }, 1200);
     };
 
@@ -224,7 +215,10 @@ function Scenario({ scenarios }) {
                                 <span>LIVE</span>
                             </div>
 
-                            <div className="terminal-log__messages">
+                            <div
+                                ref={logRef}
+                                className="terminal-log__messages"
+                            >
                                 {logs.map((log, index) => (
                                     <p key={`${log}-${index}`}>
                                         <span>&gt;</span>
@@ -240,12 +234,10 @@ function Scenario({ scenarios }) {
                             className="start-button"
                             type="button"
                             onClick={handleStart}
-                            disabled={isStarting}
+                            disabled={!selectedScenario || isStarting}
                         >
                             <span>
-                                {isStarting
-                                    ? 'Initializing session'
-                                    : 'Start negotiation'}
+                                {isStarting ? 'Initializing session' : 'Start negotiation'}
                             </span>
 
                             <span aria-hidden="true">

@@ -116,11 +116,16 @@
 
 .initializing-terminal__eyebrow {
     display: block;
-    margin-bottom: 3px;
     color: var(--text-muted);
     font-size: 9px;
     letter-spacing: 0.18em;
     text-transform: uppercase;
+}
+
+.initializing-terminal__title {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
 }
 
 .initializing-terminal__header h1 {
@@ -130,6 +135,7 @@
     font-weight: 500;
     letter-spacing: 0.05em;
     text-transform: uppercase;
+    color: var(--primary);
 }
 
 .initializing-terminal__connection {
@@ -183,6 +189,7 @@
     font-size: clamp(25px, 5vw, 38px);
     font-weight: 500;
     letter-spacing: 0.025em;
+    color: var(--primary)
 }
 
 .initializing-terminal__status p {

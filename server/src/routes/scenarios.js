@@ -23,7 +23,8 @@ const toPublicScenario = scenario => {
         description,
         durationSeconds,
         difficulty,
-        status
+        status,
+        resultContent
     } = scenario.public;
 
     return {
@@ -36,7 +37,8 @@ const toPublicScenario = scenario => {
         durationSeconds,
         duration: formatDuration(durationSeconds),
         difficulty,
-        status
+        status,
+        resultContent
     };
 };
 
