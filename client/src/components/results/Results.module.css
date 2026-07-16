@@ -1,0 +1,142 @@
+.overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    display: grid;
+    place-items: center;
+    padding: 25px;
+    background: rgba(0, 5, 4, 0.82);
+    backdrop-filter: blur(8px);
+}
+
+.dialog {
+    width: min(580px, 100%);
+    padding: 35px;
+    border: 1px solid var(--border-strong);
+    background: #06110f;
+    box-shadow: 0 0 80px rgba(0, 255, 190, 0.1);
+}
+
+.code {
+    color: var(--primary);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+}
+
+.dialog h2 {
+    margin: 13px 0;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 29px;
+    font-weight: 500;
+    color: var(--primary);
+}
+
+.dialog > p {
+    color: var(--text-muted);
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+.metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    margin: 25px 0;
+    border: 1px solid var(--border);
+}
+
+.metrics div {
+    padding: 13px;
+}
+
+.metrics div + div {
+    border-left: 1px solid var(--border);
+}
+
+.metrics span {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--text-muted);
+    font-size: 8px;
+    text-transform: uppercase;
+}
+
+.metrics strong {
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.dialog button {
+    display: flex;
+    min-width: 150px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 11px 14px;
+    border: 1px solid var(--primary);
+    color: #00100c;
+    font: inherit;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    cursor: pointer;
+    background: var(--primary);
+}
+
+.actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.actions button {
+    display: flex;
+    min-height: 48px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 0 16px;
+    font: inherit;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+.retry {
+    border: 1px solid var(--primary);
+    color: #00100c;
+    background: var(--primary);
+}
+
+.retry:hover {
+    box-shadow: 0 0 24px rgba(97, 255, 211, 0.24);
+}
+
+.icon {
+    font-size: 18px;
+}
+
+.exit {
+    border: 1px solid var(--border-strong);
+    color: var(--text);
+    background: transparent;
+}
+
+.exit:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: rgba(97, 255, 211, 0.04);
+}
+
+@media (max-width: 620px) {
+    .metrics {
+        grid-template-columns: 1fr;
+    }
+
+    .metrics div + div {
+        border-top: 1px solid var(--border);
+        border-left: 0;
+    }
+}

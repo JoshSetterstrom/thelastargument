@@ -1,11 +1,14 @@
-import {
-    useEffect,
-    useMemo,
-    useRef,
-    useState
-} from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+
+import AssessmentMeter from './AssessmentMeter';
+import Results from '../results/Results';
+import Abandon from '../abandon/Abandon';
+import Alert from '../alert/Alert';
+import Header from '../header/Header';
 
 import './Game.css';
+import Footer from '../footer/Footer';
+import { useMusic } from '../../MusicProvider';
 
 const formatTime = totalSeconds => {
     const safeSeconds = Math.max(0, totalSeconds);
@@ -42,10 +45,11 @@ const Game = ({ initialGame, onRetry, onExit, onAbandon }) => {
 
     const conversationRef = useRef(null);
     const textareaRef = useRef(null);
+    const lastKeySoundAt = useRef(0);
 
-    const opponentName =
-        game.scenario.opponentName ??
-        'AURA';
+    const { playKeySound, setMusicTrack } = useMusic();
+
+    const opponentName = game.scenario.opponentName;
 
     const isExpired = remainingSeconds <= 0;
 
@@ -109,6 +113,17 @@ const Game = ({ initialGame, onRetry, onExit, onAbandon }) => {
     }, [
         isSubmitting,
         isGameActive
+    ]);
+
+    useEffect(() => {
+        const scenarioId = game?.scenario?.id;
+
+        if (!scenarioId) return;
+
+        void setMusicTrack(scenarioId);
+    }, [
+        game?.scenario?.id,
+        setMusicTrack
     ]);
 
     const handleEvidenceSelect = evidence => {
@@ -193,6 +208,7 @@ const Game = ({ initialGame, onRetry, onExit, onAbandon }) => {
                 setNewDiscoveries(newlyRevealed);
             };
         } catch (error) {
+            console.log(error)
             setError(error.message);
 
             setGame(current => ({
@@ -211,21 +227,65 @@ const Game = ({ initialGame, onRetry, onExit, onAbandon }) => {
     };
 
     const handleKeyDown = event => {
-        if (
-            event.key !== 'Enter' ||
-            event.shiftKey
-        ) {
-            return;
+        /*
+        * Play typing sound.
+        */
+        const shouldIgnoreSound =
+            event.repeat ||
+            event.ctrlKey ||
+            event.altKey ||
+            event.metaKey;
+
+        if (!shouldIgnoreSound) {
+            const isPrintableKey =
+                event.key.length === 1;
+
+            const isEffectKey = [
+                'Backspace',
+                'Delete',
+                'Enter'
+            ].includes(event.key);
+
+            const now = performance.now();
+
+            const canPlaySound =
+                (isPrintableKey || isEffectKey) &&
+                now - lastKeySoundAt.current >= 28;
+
+            if (canPlaySound) {
+                lastKeySoundAt.current = now;
+
+                let soundType = 'key';
+
+                if (
+                    event.key === 'Backspace' ||
+                    event.key === 'Delete'
+                ) {
+                    soundType = 'backspace';
+                } else if (event.key === 'Enter') {
+                    soundType = 'enter';
+                }
+
+                void playKeySound(soundType);
+            }
         }
 
-        event.preventDefault();
-        event.currentTarget.form?.requestSubmit();
+        /*
+        * Submit on Enter, but allow Shift + Enter
+        * to insert a new line.
+        */
+        if (
+            event.key === 'Enter' &&
+            !event.shiftKey &&
+            !event.isComposing
+        ) {
+            event.preventDefault();
+            event.currentTarget.form?.requestSubmit();
+        }
     };
 
     const handleAbandon = async () => {
-        if (isAbandoning) {
-            return;
-        }
+        if (isAbandoning) return;
 
         try {
             setIsAbandoning(true);
@@ -233,21 +293,17 @@ const Game = ({ initialGame, onRetry, onExit, onAbandon }) => {
 
             await onAbandon?.(game.id);
         } catch (error) {
-            setError(
-                error.message ??
-                'Unable to terminate the scenario.'
-            );
-
+            setError(error.message ?? 'Unable to terminate the scenario.');
             setShowAbandonConfirm(false);
             setIsAbandoning(false);
-        }
+        };
     };
+
+
 
     const intelligence = game.intelligence ?? [];
 
-    const recoveredCount = intelligence.filter(
-        item => item.revealed
-    ).length;
+    const recoveredCount = intelligence.filter(item => item.revealed).length;
 
     return (
         <main className="game-shell">
@@ -262,66 +318,12 @@ const Game = ({ initialGame, onRetry, onExit, onAbandon }) => {
             />
 
             <section className="game-terminal">
-                <header className="game-header">
-                    <div className="game-header__identity">
-                        <span className="game-header__mark">
-                            Λ
-                        </span>
-
-                        <div>
-                            <span className="game-header__eyebrow">
-                                Strategic Intelligence Interface
-                            </span>
-
-                            <h1>
-                                {game.scenario.title}
-                            </h1>
-                        </div>
-                    </div>
-
-                    <div className="game-header__controls">
-                        <div className="game-header__status">
-                            <span
-                                className={[
-                                    'game-header__light',
-                                    !isGameActive
-                                        ? 'game-header__light--inactive'
-                                        : ''
-                                ]
-                                    .filter(Boolean)
-                                    .join(' ')}
-                            />
-
-                            {isGameActive
-                                ? 'Channel active'
-                                : 'Channel closed'}
-                        </div>
-
-                        {isGameActive && (
-                            <button
-                                type="button"
-                                className="game-header__abandon"
-                                onClick={() => setShowAbandonConfirm(true)}
-                                disabled={isSubmitting}
-                            >
-                                Abandon scenario
-                            </button>
-                        )}
-                    </div>
-                </header>
+                <Header isGameActive={isGameActive} setShowAbandonConfirm={setShowAbandonConfirm} isSubmitting={isSubmitting}/>
 
                 <div className="game-statusbar">
-                    <span>
-                        SCENARIO: {game.scenario.code}
-                    </span>
-
-                    <span>
-                        LOCATION: {game.scenario.location}
-                    </span>
-
-                    <span>
-                        TURNS: {game.turnsRemaining}
-                    </span>
+                    <span>SCENARIO: {game.scenario.code}</span>
+                    <span>LOCATION: {game.scenario.location}</span>
+                    <span>TURNS: {game.turnsRemaining}</span>
 
                     <span
                         className={[
@@ -694,231 +696,15 @@ const Game = ({ initialGame, onRetry, onExit, onAbandon }) => {
                     </aside>
                 </div>
 
-                <footer className="game-footer">
-                    <span>
-                        SESSION // {game.id.slice(0, 8).toUpperCase()}
-                    </span>
-
-                    <span>
-                        WORDS ARE YOUR ONLY ACCESS KEY
-                    </span>
-                </footer>
+                <Footer />
             </section>
 
-            {newDiscoveries.length > 0 && (
-                <DiscoveryAlert
-                    discoveries={newDiscoveries}
-                    onClose={() => setNewDiscoveries([])}
-                />
-            )}
+            {newDiscoveries.length > 0 && <Alert alerts={newDiscoveries} onClose={setNewDiscoveries.bind(null, [])} />}
 
-            {showAbandonConfirm && isGameActive && (
-                <AbandonDialog
-                    isAbandoning={isAbandoning}
-                    onConfirm={handleAbandon}
-                    onCancel={() => setShowAbandonConfirm(false)}
-                />
-            )}
+            {showAbandonConfirm && isGameActive && <Abandon isAbandoning={isAbandoning} onConfirm={handleAbandon} onCancel={setShowAbandonConfirm.bind(null, false)} />}
 
-            {!isGameActive && (
-                <GameResult
-                    game={game}
-                    expired={isExpired}
-                    onExit={onExit}
-                    onRetry={onRetry}
-                />
-            )}
+            {!isGameActive && <Results game={game} expired={isExpired} onExit={onExit} onRetry={onRetry} />}
         </main>
-    );
-};
-
-const AssessmentMeter = ({ label, value, danger=false }) => {
-    const normalizedValue = Math.min(Math.max(Number(value) || 0, 0), 100);
-
-    return (
-        <div
-            className={[
-                'assessment-meter',
-                danger ? 'assessment-meter--danger' : ''
-            ]
-                .filter(Boolean)
-                .join(' ')}
-        >
-            <div className="assessment-meter__header">
-                <span>{label}</span>
-                <strong>{normalizedValue}%</strong>
-            </div>
-
-            <div className="assessment-meter__track">
-                <span
-                    style={{ width: `${normalizedValue}%` }}
-                />
-            </div>
-        </div>
-    );
-};
-
-const GameResult = ({ game, expired, onRetry, onExit }) => {
-    const result = game.result ?? ( expired ? 'rejected' : 'terminated' );
-
-    const content =
-        game.scenario.resultContent?.[result] ?? {
-            code: 'SESSION TERMINATED',
-            title: 'Negotiation ended',
-            description:
-                'The negotiation session has concluded.'
-        };
-
-    return (
-        <div className="result-overlay">
-            <section className="result-dialog">
-                <span className="result-dialog__code">
-                    {content.code}
-                </span>
-
-                <h2>{content.title}</h2>
-
-                <p>{content.description}</p>
-
-                <div className="result-dialog__metrics">
-                    <div>
-                        <span>Final trust</span>
-                        <strong>{game.state.trust}%</strong>
-                    </div>
-
-                    <div>
-                        <span>Final suspicion</span>
-                        <strong>{game.state.suspicion}%</strong>
-                    </div>
-
-                    <div>
-                        <span>Turns remaining</span>
-                        <strong>{game.turnsRemaining}</strong>
-                    </div>
-                </div>
-
-                <div className="result-dialog__actions">
-                    <button
-                        type="button"
-                        className="result-dialog__retry"
-                        onClick={() => onRetry?.(game.scenario.id)}
-                    >
-                        <span>Retry scenario</span>
-                        <span aria-hidden="true">↻</span>
-                    </button>
-
-                    <button
-                        type="button"
-                        className="result-dialog__exit"
-                        onClick={onExit}
-                    >
-                        <span>Scenario archive</span>
-                        <span aria-hidden="true">←</span>
-                    </button>
-                </div>
-            </section>
-        </div>
-    );
-};
-
-const DiscoveryAlert = ({
-    discoveries,
-    onClose
-}) => {
-    return (
-        <div className="discovery-alert">
-            <div className="discovery-alert__header">
-                <div>
-                    <span className="discovery-alert__code">
-                        INTELLIGENCE RECOVERED
-                    </span>
-
-                    <h2>
-                        New information discovered
-                    </h2>
-                </div>
-
-                <button
-                    type="button"
-                    onClick={onClose}
-                    aria-label="Close discovery notification"
-                >
-                    ×
-                </button>
-            </div>
-
-            <div className="discovery-alert__items">
-                {discoveries.map(discovery => (
-                    <p key={discovery.id}>
-                        <span>&gt;</span>
-                        {discovery.text}
-                    </p>
-                ))}
-            </div>
-
-            <button
-                type="button"
-                className="discovery-alert__acknowledge"
-                onClick={onClose}
-            >
-                Acknowledge
-            </button>
-        </div>
-    );
-};
-
-const AbandonDialog = ({ isAbandoning, onConfirm, onCancel }) => {
-    return (
-        <div className="abandon-overlay">
-            <section
-                className="abandon-dialog"
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="abandon-dialog-title"
-            >
-                <span className="abandon-dialog__code">
-                    TERMINATION REQUEST
-                </span>
-
-                <h2 id="abandon-dialog-title">
-                    Abandon this scenario?
-                </h2>
-
-                <p>
-                    The active communication channel will be terminated
-                    and this attempt cannot be resumed.
-                </p>
-
-                <div className="abandon-dialog__warning">
-                    <span>!</span>
-
-                    Current messages, evidence submissions and negotiation
-                    progress will be discarded.
-                </div>
-
-                <div className="abandon-dialog__actions">
-                    <button
-                        type="button"
-                        className="abandon-dialog__cancel"
-                        onClick={onCancel}
-                        disabled={isAbandoning}
-                    >
-                        Continue scenario
-                    </button>
-
-                    <button
-                        type="button"
-                        className="abandon-dialog__confirm"
-                        onClick={onConfirm}
-                        disabled={isAbandoning}
-                    >
-                        {isAbandoning
-                            ? 'Terminating...'
-                            : 'Abandon scenario'}
-                    </button>
-                </div>
-            </section>
-        </div>
     );
 };
 

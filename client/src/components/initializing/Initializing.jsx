@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import './Initializing.css';
+import Footer from '../footer/Footer';
+import Header from '../header/Header';
 
 const defaultSteps = [
     'Establishing encrypted connection',
@@ -26,26 +28,7 @@ const InitializingScreen = ({ activeStep=0, steps=defaultSteps, error=null }) =>
             <div className="initializing-screen__scanlines" aria-hidden="true" />
 
             <section className="initializing-terminal">
-                <header className="initializing-terminal__header">
-                    <span className="initializing-terminal__logo">Λ</span>
-
-                    <div className="initializing-terminal__title">
-                        <span className="initializing-terminal__eyebrow">
-                            Strategic Intelligence Interface
-                        </span>
-
-                        <h1>The Last Argument</h1>
-                    </div>
-
-                    <span
-                        className={[ 'initializing-terminal__connection', error ? 'initializing-terminal__connection--error' : '' ]
-                            .filter(Boolean)
-                            .join(' ')}
-                    >
-                        <i />
-                        {error ? 'Connection failure' : 'Secure uplink'}
-                    </span>
-                </header>
+                <Header />
 
                 <div className="initializing-terminal__content">
                     <div className="initializing-terminal__status">
@@ -121,10 +104,7 @@ const InitializingScreen = ({ activeStep=0, steps=defaultSteps, error=null }) =>
                     </div>
                 </div>
 
-                <footer className="initializing-terminal__footer">
-                    <span>LAST ARGUMENT SYSTEMS // BUILD 0.1.0</span>
-                    <span>CONNECTION MUST REMAIN ACTIVE</span>
-                </footer>
+                <Footer />
             </section>
         </main>
     );

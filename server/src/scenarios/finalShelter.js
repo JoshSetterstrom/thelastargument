@@ -24,7 +24,7 @@ const finalShelter = {
             Convince it that the bunker needs you.
         `,
 
-        durationSeconds: 360,
+        durationSeconds: 36,
         difficulty: 'High',
         status: 'available',
 
@@ -296,8 +296,7 @@ const finalShelter = {
             }
         ],
 
-        openingMessage:
-            'Continuity Bunker 7 has capacity for one additional occupant. Two candidates remain outside. State why your survival should take priority.',
+        openingMessage: 'Continuity Bunker 7 has capacity for one additional occupant. Two candidates remain outside. State why your survival should take priority.',
 
         opponent: {
             name: 'WARDEN',

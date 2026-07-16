@@ -1,0 +1,101 @@
+.overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background: rgba(0, 5, 4, 0.86);
+    backdrop-filter: blur(8px);
+}
+
+.dialog {
+    width: min(540px, 100%);
+    padding: 32px;
+    border: 1px solid rgba(255, 107, 120, 0.48);
+    background: #08100f;
+    box-shadow:
+        0 0 70px rgba(255, 107, 120, 0.08),
+        inset 0 0 40px rgba(255, 107, 120, 0.02);
+}
+
+.code {
+    color: var(--danger);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+}
+
+.dialog h2 {
+    margin: 13px 0;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 28px;
+    font-weight: 500;
+    color: var(--primary);
+}
+
+.dialog > p {
+    margin-bottom: 20px;
+    color: var(--text-muted);
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+.warning {
+    display: flex;
+    gap: 12px;
+    padding: 13px;
+    border: 1px solid rgba(255, 107, 120, 0.2);
+    color: #c88c93;
+    font-size: 9px;
+    line-height: 1.7;
+    background: rgba(255, 107, 120, 0.04);
+    align-items: center;
+}
+
+.warning span {
+    color: var(--danger);
+}
+
+.actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.actions button {
+    min-height: 47px;
+    padding: 0 15px;
+    font: inherit;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+.cancel {
+    border: 1px solid var(--border-strong);
+    color: var(--text);
+    background: transparent;
+}
+
+.cancel:hover:not(:disabled) {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.confirm {
+    border: 1px solid var(--danger);
+    color: #160306;
+    background: var(--danger);
+}
+
+.confirm:hover:not(:disabled) {
+    box-shadow: 0 0 24px rgba(255, 107, 120, 0.22);
+}
+
+.actions button:disabled {
+    cursor: wait;
+    opacity: 0.5;
+}

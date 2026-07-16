@@ -58,15 +58,11 @@ router.post('/', (req, res) => {
 
     const session = createGameSession(scenario);
 
-    return res.status(201).json({
-        data: toPublicGameSession(session, scenario)
-    });
+    return res.status(200).json(toPublicGameSession(session, scenario));
 });
 
 router.get('/:gameId', (req, res) => {
-    const session = getGameSession(
-        req.params.gameId
-    );
+    const session = getGameSession(req.params.gameId);
 
     if (!session) {
         return res.status(404).json({

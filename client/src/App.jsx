@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react';
 
-import Initializing from './Initializing';
-import Scenario from './Scenario';
-import Game from './Game';
+import Initializing from './components/initializing/Initializing';
+import Selection from './components/selection/Selection';
+import Game from './components/game/Game';
+import axios from 'axios';
+
+import './App.css';
 
 const scenarioLoadingSteps = [
     'Retrieving scenario archive',
@@ -24,70 +27,6 @@ const App = () => {
     const [game, setGame] = useState(null);
     const [error, setError] = useState(null);
 
-    useEffect(() => {
-        const controller = new AbortController();
-
-        const initialize = async () => {
-            try {
-                setIsInitializing(true);
-                setError(null);
-                setActiveStep(0);
-
-                const activeGameId =
-                    sessionStorage.getItem('activeGameId');
-
-                const scenarioRequest = fetch('/api/scenarios', {
-                    signal: controller.signal
-                });
-
-                const gameRequest = activeGameId
-                    ? fetch(`/api/games/${activeGameId}`, {
-                        signal: controller.signal
-                    })
-                    : null;
-
-                const scenarioResponse = await scenarioRequest;
-                const scenarioResult = await scenarioResponse
-                    .json()
-                    .catch(() => null);
-
-                if (!scenarioResponse.ok) {
-                    throw new Error(
-                        scenarioResult?.error?.message ??
-                        'Unable to retrieve scenario records.'
-                    );
-                }
-
-                setScenarios(scenarioResult.data);
-                setActiveStep(1);
-
-                if (gameRequest) {
-                    const gameResponse = await gameRequest;
-                    const gameResult = await gameResponse
-                        .json()
-                        .catch(() => null);
-
-                    if (gameResponse.ok) {
-                        setGame(gameResult.data);
-                    } else {
-                        sessionStorage.removeItem('activeGameId');
-                    }
-                }
-
-                setActiveStep(2);
-                setIsInitializing(false);
-            } catch (error) {
-                if (error.name !== 'AbortError') {
-                    setError(error.message);
-                }
-            }
-        };
-
-        initialize();
-
-        return () => controller.abort();
-    }, []);
-
     const handleStartGame = async scenarioId => {
         try {
             setError(null);
@@ -95,42 +34,22 @@ const App = () => {
             setActiveStep(0);
             setIsInitializing(true);
 
-            const response = await fetch('/api/games', {
-                method: 'POST',
+            const response = await axios.post('/api/games', { scenarioId });
 
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-
-                body: JSON.stringify({
-                    scenarioId
-                })
-            });
-
-            const result = await response
-                .json()
-                .catch(() => null);
-
-            if (!response.ok) {
-                throw new Error(
-                    result?.error?.message ??
-                    'Unable to initialize the selected scenario.'
-                );
-            }
+            if (response.status !== 200) {
+                throw new Error(result?.error?.message ?? 'Unable to initialize the selected scenario.');
+            };
 
             setActiveStep(1);
 
-            sessionStorage.setItem(
-                'activeGameId',
-                result.data.id
-            );
+            sessionStorage.setItem('activeGameId', response.data.id);
 
-            setGame(result.data);
+            setGame(response.data);
             setActiveStep(2);
             setIsInitializing(false);
         } catch (error) {
             setError(error.message);
-        }
+        };
     };
 
     const onRetry = scenarioId => {
@@ -141,30 +60,65 @@ const App = () => {
 
     const onExit = () => {
         sessionStorage.removeItem('activeGameId');
+
         setGame(null);
     };
 
     const onAbandon = async gameId => {
-        const response = await fetch(`/api/games/${gameId}/abandon`, { method: 'POST' });
+        const response = await axios.post(`/api/games/${gameId}/abandon`);
 
-        const result = await response.json().catch(() => null);
-
-        if (!response.ok) {
-            throw new Error(
-                result?.error?.message ??
-                'Unable to abandon the scenario.'
-            );
-        }
+        if (response.status !== 200) {
+            throw new Error(result?.error?.message ?? 'Unable to abandon the scenario.');
+        };
 
         sessionStorage.removeItem('activeGameId');
+
         setGame(null);
     };
 
-    if (isInitializing || error) return <Initializing activeStep={activeStep} steps={initializationSteps} error={error} />;
-        
-    if (game) return <Game initialGame={game} onRetry={onRetry} onExit={onExit} onAbandon={onAbandon}/>;
+    useEffect(() => {
+        const controller = new AbortController();
 
-    return <Scenario scenarios={scenarios} onStart={handleStartGame} />;
+        const initialize = async () => {
+            try {
+                setIsInitializing(true);
+                setError(null);
+                setActiveStep(0);
+
+                const activeGameId = sessionStorage.getItem('activeGameId');
+
+                const scenarioRequest = await axios.get('/api/scenarios', { signal: controller.signal });
+                const gameRequest = activeGameId && axios.get(`/api/games/${activeGameId}`, { signal: controller.signal });
+
+                if (scenarioRequest.status !== 200) {
+                    throw new Error(scenarioRequest?.error?.message ?? 'Unable to retrieve scenario records.');
+                };
+
+                setScenarios(scenarioRequest.data);
+                setActiveStep(1);
+
+                if (gameRequest) setGame(gameRequest.data);
+                else sessionStorage.removeItem('activeGameId');
+
+                setActiveStep(2);
+                
+                setTimeout(() => setIsInitializing(false), 1000);
+            } catch (error) {
+                if (error.name !== 'CanceledError') setError(error.message);
+            };
+        };
+
+        initialize();
+
+        return () => controller.abort();
+    }, []);
+
+    if (isInitializing || error) 
+        return <Initializing activeStep={activeStep} steps={initializationSteps} error={error} />;
+    if (game) 
+        return <Game initialGame={game} onRetry={onRetry} onExit={onExit} onAbandon={onAbandon}/>;
+
+    return <Selection scenarios={scenarios} onStart={handleStartGame} />;
 };
 
 export default App;

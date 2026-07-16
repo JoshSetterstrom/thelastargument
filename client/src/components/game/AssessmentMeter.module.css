@@ -1,0 +1,46 @@
+.wrapper {
+    margin-top: 19px;
+}
+
+.danger
+.header strong {
+    color: var(--danger);
+}
+
+.danger
+.track span {
+    background: var(--danger);
+    box-shadow: 0 0 9px var(--danger);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 9px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+}
+
+.header span {
+    color: var(--text-muted);
+}
+
+.header strong {
+    color: var(--primary);
+    font-weight: 500;
+}
+
+.track {
+    height: 5px;
+    overflow: hidden;
+    background: rgba(97, 255, 211, 0.09);
+}
+
+.track span {
+    display: block;
+    height: 100%;
+    background: var(--primary);
+    box-shadow: 0 0 9px var(--primary);
+    transition: width 500ms ease;
+}

@@ -1,0 +1,33 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600&display=swap');
+
+:root {
+    font-family: 'IBM Plex Mono', monospace;
+    color: #d8fff5;
+    background: #020706;
+
+    --background: #020706;
+    --surface: rgba(6, 19, 17, 0.92);
+    --surface-light: rgba(11, 32, 28, 0.8);
+    --border: rgba(97, 255, 211, 0.18);
+    --border-strong: rgba(97, 255, 211, 0.55);
+    --primary: #61ffd3;
+    --primary-muted: #23a886;
+    --text: #d8fff5;
+    --text-muted: #6f9d91;
+    --warning: #ffbd5c;
+    --danger: #ff6b78;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
+}
+
+button {
+    font: inherit;
+}
