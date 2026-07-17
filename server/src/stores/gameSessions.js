@@ -4,14 +4,10 @@ import { selectEvidence } from '../utils/selectEvidence.js';
 
 const gameSessions = new Map();
 
-export const createGameSession = scenario => {
+export const createGameSession = (req, scenario) => {
     const startedAt = new Date();
 
-    const {
-        trust,
-        suspicion,
-        ...hiddenInitialState
-    } = scenario.game.initialState;
+    const { trust, suspicion, ...hiddenInitialState } = scenario.game.initialState;
 
     const selectedEvidence = selectEvidence({
         pool: scenario.game.evidencePool,
@@ -21,6 +17,7 @@ export const createGameSession = scenario => {
 
     const session = {
         id: randomUUID(),
+        ownerId: req.visitorId,
         scenarioId: scenario.id,
         status: 'active',
 
@@ -77,6 +74,7 @@ export const getGameSession = sessionId => {
 
 export const saveGameSession = session => {
     gameSessions.set(session.id, session);
+    
     return session;
 };
 

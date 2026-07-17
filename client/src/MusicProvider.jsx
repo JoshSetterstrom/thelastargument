@@ -8,12 +8,12 @@ import {
 } from 'react';
 
 import airlockMusic from './assets/airlock_protocol.wav';
-import shelterMusic from './assets/final_shelter.wav';
+import murderMusic from './assets/murder_protocol.wav';
 import switchMusic from './assets/dead_mans_switch.wav';
 
 const MUSIC_TRACKS = {
     'airlock-protocol': airlockMusic,
-    'final-shelter': shelterMusic,
+    'murder-protocol': murderMusic,
     'dead-mans-switch': switchMusic
 };
 

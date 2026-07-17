@@ -1,11 +1,11 @@
 import airlockProtocol from './airlockProtocol.js';
-import finalShelter from './finalShelter.js';
-import deadMansSwitch from './deadMansSwitch.js';
+import murderProtocol from './murderProtocol.js';
+import catRetrievalProtocol from './catRetrivalProtocol.js';
 
 const scenarios = new Map([
     [airlockProtocol.id, airlockProtocol],
-    [finalShelter.id, finalShelter],
-    [deadMansSwitch.id, deadMansSwitch]
+    [murderProtocol.id, murderProtocol],
+    [catRetrievalProtocol.id, catRetrievalProtocol]
 ]);
 
 export const getScenarios = () => {

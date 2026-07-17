@@ -1,0 +1,45 @@
+.panel {
+    padding: 17px;
+    border: 1px solid var(--border);
+    background: var(--surface-light);
+}
+
+.heading {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    margin-bottom: 16px;
+}
+
+.index {
+    color: var(--primary);
+    font-size: 9px;
+    letter-spacing: 0.11em;
+}
+
+.title {
+    margin: 0;
+    color: var(--primary);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.meters {
+    display: grid;
+    gap: 19px;
+}
+
+.warning {
+    margin: 19px 0 0;
+    padding: 10px;
+    border: 1px solid rgba(255, 189, 92, 0.16);
+
+    color: #ad9368;
+    font-size: 8px;
+    line-height: 1.7;
+
+    background: rgba(255, 189, 92, 0.025);
+}

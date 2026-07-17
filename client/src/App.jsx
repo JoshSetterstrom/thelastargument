@@ -88,17 +88,22 @@ const App = () => {
                 const activeGameId = sessionStorage.getItem('activeGameId');
 
                 const scenarioRequest = await axios.get('/api/scenarios', { signal: controller.signal });
-                const gameRequest = activeGameId && axios.get(`/api/games/${activeGameId}`, { signal: controller.signal });
+
+                setActiveStep(1);
+                
+                try {
+                    const gameRequest = activeGameId && await axios.get(`/api/games/${activeGameId}`, { signal: controller.signal });
+
+                    setGame(gameRequest.data);
+                } catch (error) {
+                    sessionStorage.removeItem('activeGameId');
+                }
 
                 if (scenarioRequest.status !== 200) {
                     throw new Error(scenarioRequest?.error?.message ?? 'Unable to retrieve scenario records.');
                 };
 
                 setScenarios(scenarioRequest.data);
-                setActiveStep(1);
-
-                if (gameRequest) setGame(gameRequest.data);
-                else sessionStorage.removeItem('activeGameId');
 
                 setActiveStep(2);
                 
