@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: the-last-argument
+    runtime: node
+    plan: free
+    region: oregon
+    branch: main
+    buildCommand: npm ci --prefix server && npm ci --prefix client && npm run build --prefix client
+    startCommand: npm start --prefix server
+    healthCheckPath: /api/health
+    autoDeployTrigger: commit
+    domains:
+      - thelastargument.joshsetterstrom.ca
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: COOKIE_SECRET
+        generateValue: true
